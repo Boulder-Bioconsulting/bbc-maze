@@ -5,10 +5,14 @@ from collections import OrderedDict
 from bbc.xlxf import *
 from bbc.xfutils import *
 
+import bbc.xlxf.core
+bbc.xlxf.core.sheet_name_cmp = a_re_eq_b
+
 xf_env = {
     "variables": {
+
         # Hardcoding for the example. In a larger loader process, this will be pulled from a meta-data sheet.
-        "sample_id": "1618423",
+        "sample_id": "\d+",
 
         # Tables
         "ms_table": {
@@ -31,7 +35,7 @@ xf_env = {
         # Variables
 
         # STDs are labeled from 1-13, using both "STD 1" and "STD-01" formats
-        "std_labels": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11,12, 13],
+        "std_labels": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13],
 
         # These are stored as integers in the sheet
         "std_conc_values": [

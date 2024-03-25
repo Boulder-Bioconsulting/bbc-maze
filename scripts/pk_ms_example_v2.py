@@ -30,6 +30,8 @@ from bbc.xfutils import (
     get_by_index
 )
 
+from pprint import pprint
+
 import bbc.xlxf.core
 bbc.xlxf.core.sheet_name_cmp = b_starts_with_a
 
@@ -52,7 +54,7 @@ xf_env = {
             # "debug": print,
         },
         "std_table": {
-            "type": TitleTable,
+            "type": TitleTable,  # SheetTable: table_address: Address(SheetName!A2)
             "params": {
                 "sheet_name": "MZ-",
                 "column_header": "Index",
@@ -88,7 +90,8 @@ xf_env = {
                 "table": Rf("std_table"),
                 "column": "Sample ID"
             },
-            "xf": list
+            "xf": list,
+            # "debug": pprint,
         },
         "index_ids": {
             "requires": "std_table",
@@ -97,7 +100,8 @@ xf_env = {
                 "table": Rf("std_table"),
                 "column": "Index"
             },
-            "xf": [list, list_xf(str)]
+            "xf": [list, list_xf(str)],
+            # "debug": pprint,
         },
 
         # zip the two lists together
@@ -105,7 +109,7 @@ xf_env = {
             "requires": ["sample_ids", "index_ids", "std_names"],
             "type": zip_lists(include=Rf("std_names"), rf=True),
             "params": [Rf("index_ids"), Rf("sample_ids")],
-            # "debug": print,
+            "debug": pprint,
         },
 
     }
@@ -359,16 +363,16 @@ std_sheet_def = {
         },
         {
             "header": "2 - Caclulated Concentration (nM)",
-            "xf": TableValue(
+            "xf": TableValue(  # STD-02, block 2: "index" = 218, std_idx = 1
                 Rf("std_table"),
-                EnvDict(
+                EnvDict( # => index_and_sample[1+13] => index_and_sample[14] = (218, STD-02)
                     # this is a list of the indices and samples
                     "index_and_sample",
                     # the index is given by std_idx + (13 * [replicate - 1])
                     EnvRef("std_idx", xf=add_to_value(13)),
                     # we need the first element as an int
                     xf=get_by_index(0),
-                ),
+                ), # => 218
                 "Calculated Concentration",
                 allow_int_keys=True,  # to be safe with our str/int conversions
             )

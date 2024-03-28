@@ -152,7 +152,7 @@ std_replicate_sheet_def = {
 }
 
 
-qc_replicate_sheet_def = {
+qc_replicate_sheet_def_odd = {
     "sheet_name": "QC Calibration",
 
     "row_iterator": [
@@ -180,6 +180,7 @@ qc_replicate_sheet_def = {
                 Rf("qc_label", "qc_conc"),
                 "Calculated Conc",
                 cmp=b_starts_with_a,  # if we give you ULQC, and you see ULQC_#, give us that row
+                row_offset=0
             )
         },
         {
@@ -201,11 +202,18 @@ qc_replicate_sheet_def = {
                 "Calculated Conc",
                 cmp=b_starts_with_a,  # if we give you ULQC, and you see ULQC_#, give us that row
                 row_offset=2,
-            )
+            ),
         },
         {
             "header": "3 - Accuracy (%)",
-            "xf": ""
+            "xf": TableValue(
+                Rf("ms_table"),
+                Rf("qc_label", "qc_conc"),
+                "Calculated Conc",
+                cmp=b_starts_with_a,
+                row_offset=2,
+                xf_env=lambda v, env: float(v) / float(env["qc_conc"])  # accuracy as a fraction
+            ),
         },
         {
             "header": "5 - Calculated Concentration (nM)",
@@ -215,19 +223,134 @@ qc_replicate_sheet_def = {
                 "Calculated Conc",
                 cmp=b_starts_with_a,  # if we give you ULQC, and you see ULQC_#, give us that row
                 row_offset=4,
-            )
+            ),
         },
         {
             "header": "5 - Accuracy (%)",
-            "xf": ""
+            "xf": TableValue(
+                Rf("ms_table"),
+                Rf("qc_label", "qc_conc"),
+                "Calculated Conc",
+                cmp=b_starts_with_a,
+                row_offset=4,
+                xf_env=lambda v, env: float(v) / float(env["qc_conc"])  # accuracy as a fraction
+            ),
         },
         {
             "header": "7 - Calculated Concentration (nM)",
-            "xf": ""
+            "xf": TableValue(
+                Rf("ms_table"),
+                Rf("qc_label", "qc_conc"),
+                "Calculated Conc",
+                cmp=b_starts_with_a,  # if we give you ULQC, and you see ULQC_#, give us that row
+                row_offset=6,
+            ),
         },
         {
             "header": "7 - Accuracy (%)",
+            "xf": TableValue(
+                Rf("ms_table"),
+                Rf("qc_label", "qc_conc"),
+                "Calculated Conc",
+                cmp=b_starts_with_a,
+                row_offset=6,
+                xf_env=lambda v, env: float(v) / float(env["qc_conc"])  # accuracy as a fraction
+            ),
+        },
+    ]
+}
+
+qc_replicate_sheet_def_even = {
+    "sheet_name": "QC Calibration Even",
+
+    "row_iterator": [
+        (Rf("qc_labels_conc_values"), "qc_label_conc"),
+    ],
+
+    "row_env_update": DictUpdate(OrderedDict((
+        ("qc_label", lambda env: env["qc_label_conc"][0]),
+        ("qc_conc", lambda env: env["qc_label_conc"][1]),
+    ))),
+
+    "columns": [
+        {
+            "header": "Sample Name",
+            "xf": EnvDict("qc_name_map", Rf("qc_label"))
+        },
+        {
+            "header": "Nominal Concentration (nM)",
+            "xf": Rf("qc_conc")
+        },
+        {
+            "header": "2 - Calculated Concentration (nM)",
+            "xf": TableValue(
+                Rf("ms_table"),
+                Rf("qc_label", "qc_conc"),
+                "Calculated Conc",
+                cmp=b_starts_with_a,  # if we give you ULQC, and you see ULQC_#, give us that row
+                row_offset=1
+            )
+        },
+        {
+            "header": "2 - Accuracy (%)",
+            "xf": TableValue(
+                Rf("ms_table"),
+                Rf("qc_label", "qc_conc"),
+                "Calculated Conc",
+                cmp=b_starts_with_a,
+                row_offset=1,
+                xf_env=lambda v, env: float(v) / float(env["qc_conc"])  # accuracy as a fraction
+            ),
+        },
+        {
+            "header": "4 - Calculated Concentration (nM)",
+            "xf": TableValue(
+                Rf("ms_table"),
+                Rf("qc_label", "qc_conc"),
+                "Calculated Conc",
+                cmp=b_starts_with_a,  # if we give you ULQC, and you see ULQC_#, give us that row
+                row_offset=3,
+            ),
+        },
+        {
+            "header": "4 - Accuracy (%)",
+            "xf": TableValue(
+                Rf("ms_table"),
+                Rf("qc_label", "qc_conc"),
+                "Calculated Conc",
+                cmp=b_starts_with_a,
+                row_offset=3,
+                xf_env=lambda v, env: float(v) / float(env["qc_conc"])  # accuracy as a fraction
+            ),
+        },
+        {
+            "header": "6 - Calculated Concentration (nM)",
+            "xf": TableValue(
+                Rf("ms_table"),
+                Rf("qc_label", "qc_conc"),
+                "Calculated Conc",
+                cmp=b_starts_with_a,  # if we give you ULQC, and you see ULQC_#, give us that row
+                row_offset=5,
+            ),
+        },
+        {
+            "header": "6 - Accuracy (%)",
+            "xf": TableValue(
+                Rf("ms_table"),
+                Rf("qc_label", "qc_conc"),
+                "Calculated Conc",
+                cmp=b_starts_with_a,
+                row_offset=5,
+                xf_env=lambda v, env: float(v) / float(env["qc_conc"])  # accuracy as a fraction
+            ),
+        },
+        {
+            "header": "8 - Calculated Concentration (nM)",
             "xf": ""
+        },
+        {
+            "header": "8 - Accuracy (%)",
+            "xf": "0"
         },
     ]
 }
@@ -238,7 +361,8 @@ class MSExtractor(XFProcessor):
 
     sheet_defs = [
         std_replicate_sheet_def,
-        qc_replicate_sheet_def
+        qc_replicate_sheet_def_odd,
+        qc_replicate_sheet_def_even
     ]
 
 if __name__=="__main__":
